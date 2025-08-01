@@ -11,9 +11,13 @@ if(!token){
           return   res.status(400).json({error:"user not found"})
 }
 
-const decoded = jwt.verify(token,process.env.)
+const decoded = jwt.verify(token,process.env.JWT_SECRET);
+req.user = decoded;
+next()
 
 } catch (error) {
-      return   res.status(500).json({error:"Server error"})
+      return   res.status(403).json({error:"Invalid token"})
 }
 }
+
+module.exports = autheticateToken;
