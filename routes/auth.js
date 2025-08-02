@@ -13,10 +13,10 @@ router.post('/register',async function(req,res,next){
       return  res.status(400).json({error:"User already exists"})
     }
 
-if(!name&&!email){
+if (!name || !email || !password){
     return res.status(400).json({error:"Missing fields"})
 }
-if(!password||password.length<7){
+if(password.length<7){
     return res.status(400).json({error:"Invalid format"})
 }
 

@@ -1,10 +1,13 @@
 var express = require('express');
 var router = express.Router();
 const expenseModel = require("../models/expense.model")
-const autheticateToken = require('../middlewares/auth.middleware')
+const autheticateToken = require('../middlewares/auth.middleware.js')
 
-router.post('/expenses',autheticateToken ,async function(req,res,next){
-try {
+router.post('/create',autheticateToken ,async function(req,res,next){
+  console.log("Route hit!"); // Add this
+    console.log("User from token:", req.user);
+  try {
+     console.log("Request body:", req.body)
   const{expenseName,description,amount,category,expenseDate} = req.body;
 
   let list =  await expenseModel.create({
@@ -15,12 +18,13 @@ try {
 // Decodes it to get the user info
 // Attaches the user info to req.user
   })
-
+ console.log("Expense created:", list); 
   res.json({
     message:"expense created successfully",
     list
   })
 } catch (error) {
+  console.log("Actual error details:", error);
 return  res.status(500).json({error:"Server error"})
 }
   
@@ -79,7 +83,7 @@ if(!userId){
 }
 
 let expense = await expenseModel.findById(id);
-if(expense.userId!==userId){
+if(expense.userId.toString() !==userId){
   return res.status(400).json({error:"User not authorized"})
 }
 
@@ -92,8 +96,39 @@ res.json({
   updatedExpense
 })
 } catch (error) {
+  console.log("actual error",error)
    return res.status(500).json({error:"Server error"})
 }
 
 })
+
+router.delete('/user/:id', autheticateToken, async function(req, res, next) {
+  try {
+    const {id} = req.params;
+    const userId = req.user.userId;
+    
+    let expense = await expenseModel.findById(id);
+    
+    if (!expense) {
+      return res.status(404).json({error: "Expense not found"});
+    }
+    
+    if (expense.userId.toString() !== userId) {
+      return res.status(403).json({error: "User not authorized"});
+    }
+    
+    await expenseModel.findByIdAndDelete(id);
+    
+    res.json({
+      message: "Expense deleted successfully"
+    });
+    
+  } catch (error) {
+    console.log("actual error", error);
+    return res.status(500).json({error: "Server error"});
+  }
+});
+
+
+
 module.exports = router;

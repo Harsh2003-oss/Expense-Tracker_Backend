@@ -6,7 +6,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+require('dotenv').config(); // This loads .env file
 
 var expensesRouter = require('./routes/expenses');
 
@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', expensesRouter);
+app.use('/expenses', expensesRouter);
 
 app.use('/auth',authRouter)
 
